@@ -1,4 +1,4 @@
-<h1 id="chronicle"><img src="https://paragonie.com/static/images/chronicle-logo.svg" width="50" /> Chronicle</h1>
+<h1 id="chronicle"><img src="https://paragonie.com/static/images/chronicle-logo.svg" width="50" /> ChronicleX</h1>
 
 [![Build Status](https://travis-ci.org/paragonie/chronicle.svg?branch=master)](https://travis-ci.org/paragonie/chronicle)
 [![Latest Stable Version](https://poser.pugx.org/paragonie/chronicle/v/stable)](https://packagist.org/packages/paragonie/chronicle)
