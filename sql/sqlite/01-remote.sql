@@ -1,15 +1,15 @@
 CREATE TABLE chronicle_xsign_targets (
-  id INTEGER PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
   name TEXT,
-  url TEXT,
+  url TEXT NOT NULL,
   clientid TEXT,
-  publickey TEXT,
-  policy TEXT,
-  lastrun TEXT
+  publickey TEXT NOT NULL,
+  policy TEXT NOT NULL,
+  lastrun TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chronicle_replication_sources (
-  id INTEGER PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
   uniqueid TEXT,
   name TEXT,
   url TEXT,
@@ -17,18 +17,19 @@ CREATE TABLE chronicle_replication_sources (
 );
 
 CREATE TABLE chronicle_replication_chain (
-  id INTEGER PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
   source INTEGER,
-  data TEXT,
+  data TEXT NOT NULL,
   prevhash TEXT NULL,
-  currhash TEXT,
-  hashstate TEXT,
-  summaryhash TEXT,
-  publickey TEXT,
-  signature TEXT,
-  created TEXT,
-  replicated TEXT,
-  FOREIGN KEY (currhash) REFERENCES chronicle_replication_chain(prevhash),
+  currhash TEXT NOT NULL,
+  hashstate TEXT NOT NULL,
+  summaryhash TEXT NOT NULL,
+  publickey TEXT NOT NULL,
+  signature TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  replicated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (prevhash) REFERENCES chronicle_replication_chain(currhash),
+  FOREIGN KEY (publickey) REFERENCES chronicle_xsign_targets(publickey),
   UNIQUE(source, prevhash)
 );
 

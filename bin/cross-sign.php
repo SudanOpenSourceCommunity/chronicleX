@@ -39,6 +39,7 @@ $db = Factory::create(
     $settings['database']['password'] ?? '',
     $settings['database']['options'] ?? []
 );
+Chronicle::setDatabase($db);
 
 /**
  * @var GetOpt $getopt
@@ -123,18 +124,83 @@ $fields['clientid'] = $clientId;
 
 $db->beginTransaction();
 /** @var string $table */
-$table = Chronicle::getTableName('xsign_targets');
+$table = Chronicle::getTableName('xsign_targets', true);
 if ($db->exists('SELECT * FROM ' . $table . ' WHERE name = ?', $name)) {
+
+    echo '--------------------------------------------------------------------', PHP_EOL;
+    echo 'Updating Data...', PHP_EOL;
+    echo '--------------------------------------------------------------------', PHP_EOL;
+    print_r($fields);
+    echo '--------------------------------------------------------------------', PHP_EOL;
+
     // Update an existing cross-sign target
     $db->update($table, $fields, ['name' => $name]);
+
 } else {
-    // Create a new cross-sign target
-    if (empty($url) || empty($publicKey)) {
+    
+    if (empty($url)) {
         $db->rollBack();
-        echo '--url and --publickey are mandatory for new cross-sign targets', PHP_EOL;
+        echo '--url is mandatory for new cross-sign targets', PHP_EOL;
         exit(1);
     }
+
+    // If public key not provided in the command line argument,
+    // try to fetch it by provided URL.
+    if (empty($publicKey)){
+
+        echo 'Fetching public key (' . $url . ')...', PHP_EOL;
+        $response = file_get_contents($url);
+        if(!$response){
+            echo '--------------------------------------------------------------------', PHP_EOL;
+            echo 'ERROR: Provided URL(' . $url . ') has no Chronicle API!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
+            exit(1); 
+        }
+        $server = json_decode($response, true);
+        if(!$server || !in_array('public-key', array_keys($server))){
+            echo '--------------------------------------------------------------------', PHP_EOL;
+            echo 'ERROR: Server output cannot be parsed!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
+            exit(1);
+        }
+        $publicKey = $server['public-key'];
+        echo '--------------------------------------------------------------------', PHP_EOL;
+        echo 'Server Public Key: ' . $publicKey, PHP_EOL;
+        echo '--------------------------------------------------------------------', PHP_EOL;
+        echo 'Are you sure you want to add this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
+
+        if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
+            echo 'ABORTING!', PHP_EOL;
+            exit;
+        }
+    }
+    
+    // Create a new cross-sign target
+    if (empty($publicKey)) {
+        $db->rollBack();
+        echo '--publickey is mandatory for new cross-sign targets', PHP_EOL;
+        exit(1);
+    }
+    
     $fields['name'] = $name;
+
+    if (is_string($publicKey)) {
+        try {
+            /** @var SigningPublicKey $publicKeyObj */
+            $publicKeyObj = new SigningPublicKey(
+                Base64UrlSafe::decode($publicKey)
+            );
+        } catch (\Throwable $ex) {
+            echo $ex->getMessage(), PHP_EOL;
+            exit(1);
+        }
+        $fields['publickey'] = $publicKey;
+    }
+
+    echo '--------------------------------------------------------------------', PHP_EOL;
+    echo 'Saving Data...', PHP_EOL;
+    echo '--------------------------------------------------------------------', PHP_EOL;
+    print_r($fields);
+    echo '--------------------------------------------------------------------', PHP_EOL;
+
     $db->insert($table, $fields);
 }
 
@@ -144,4 +210,6 @@ if (!$db->commit()) {
     $errorInfo = $db->errorInfo();
     echo $errorInfo[0], PHP_EOL;
     exit(1);
+}else{
+    echo 'The operation has been done successfully. ^_^', PHP_EOL;
 }

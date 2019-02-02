@@ -1,7 +1,7 @@
 CREATE TABLE chronicle_clients (
   `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  `publicid` VARCHAR(128),
-  `publickey` TEXT,
+  `publicid` VARCHAR(128) NOT NULL,
+  `publickey` TEXT NOT NULL,
   `isAdmin` BOOLEAN NOT NULL DEFAULT FALSE,
   `comment` TEXT,
   `created` DATETIME DEFAULT CURRENT_TIMESTAMP,
