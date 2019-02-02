@@ -1,10 +1,10 @@
 CREATE TABLE chronicle_xsign_targets (
   id BIGSERIAL PRIMARY KEY,
   name TEXT,
-  url TEXT,
-  clientid TEXT,
-  publickey TEXT,
-  policy TEXT,
+  url TEXT NOT NULL,
+  clientid TEXT NOT NULL,
+  publickey TEXT NOT NULL,
+  policy TEXT NOT NULL,
   lastrun TEXT
 );
 

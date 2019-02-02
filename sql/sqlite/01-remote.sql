@@ -2,7 +2,7 @@ CREATE TABLE chronicle_xsign_targets (
   id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
   name TEXT,
   url TEXT NOT NULL,
-  clientid TEXT,
+  clientid TEXT NOT NULL,
   publickey TEXT NOT NULL,
   policy TEXT NOT NULL,
   lastrun TIMESTAMP DEFAULT CURRENT_TIMESTAMP

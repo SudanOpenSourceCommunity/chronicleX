@@ -116,10 +116,17 @@ if (is_string($publicKey)) {
         );
     } catch (\Throwable $ex) {
         echo $ex->getMessage(), PHP_EOL;
-        exit(1);
+        // exit(1);
     }
     $fields['publickey'] = $publicKey;
 }
+
+if (empty($clientId)) {
+    $db->rollBack();
+    echo '--clientid is mandatory for new cross-sign targets', PHP_EOL;
+    exit(1);
+}
+
 $fields['clientid'] = $clientId;
 
 $db->beginTransaction();
@@ -199,6 +206,15 @@ if ($db->exists('SELECT * FROM ' . $table . ' WHERE name = ?', $name)) {
     echo 'Saving Data...', PHP_EOL;
     echo '--------------------------------------------------------------------', PHP_EOL;
     print_r($fields);
+    echo '--------------------------------------------------------------------', PHP_EOL;
+    echo 'Are you sure you want to save this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
+
+    if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
+        $db->rollBack();
+        echo 'CANCELD!', PHP_EOL;
+        exit;
+    }
+
     echo '--------------------------------------------------------------------', PHP_EOL;
 
     $db->insert($table, $fields);
