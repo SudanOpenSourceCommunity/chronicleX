@@ -114,7 +114,7 @@ class CrossSign
             $id,
             $data['name'],
             $data['url'],
-            $data['clientid'],
+            $data['clientid'] ?? '',
             new SigningPublicKey(Base64UrlSafe::decode($data['publickey'])),
             \is_array($policy) ? $policy : [],
             \is_array($lastRun) ? $lastRun : []

@@ -29,7 +29,6 @@ CREATE TABLE chronicle_replication_chain (
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   replicated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (prevhash) REFERENCES chronicle_replication_chain(currhash),
-  FOREIGN KEY (publickey) REFERENCES chronicle_xsign_targets(publickey),
   UNIQUE(source, prevhash)
 );
 
