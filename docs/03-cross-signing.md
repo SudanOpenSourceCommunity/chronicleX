@@ -2,14 +2,21 @@
 
 The process is relatively simple:
 
-1. Obtain your server's public key. This can be obtained by visiting 
-   `/chronicle`.
-2. Send your public key to the person who operates the other Chronicle and request
+1. Send your Chronicle URL which ends up with `/chronicle` to the person who operates the other Chronicle and request
    access as a client.
-3. Configure cross-signing on your client.
-4. (Optional) set up a cronjob that runs `bin/scheduled-tasks.php` regularly.
+2. Configure cross-signing on your client.
+3. (Optional) set up a cronjob that runs `bin/scheduled-tasks.php` regularly.
 
-To perform step three, you need only run the following command:
+To perform step two, you need only run the following command:
+
+```bash
+php bin/cross-sign.php \
+    --url=http://target-chronicle \
+    --name=[whatever you want to refer to it] \
+    # One or both of the options below:
+```
+
+BTW, you can set public key manually, then the application will ignore fetching it by URL. See the example below: 
 
 ```bash
 php bin/cross-sign.php \
@@ -18,6 +25,8 @@ php bin/cross-sign.php \
     --name=[whatever you want to refer to it] \
     # One or both of the options below:
 ```
+
+### Options
 
 You must also specify one or both of the following options:
 
