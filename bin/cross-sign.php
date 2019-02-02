@@ -153,30 +153,7 @@ if ($db->exists('SELECT * FROM ' . $table . ' WHERE name = ?', $name)) {
     // If public key not provided in the command line argument,
     // try to fetch it by provided URL.
     if (empty($publicKey)){
-
-        echo 'Fetching public key (' . $url . ')...', PHP_EOL;
-        $response = file_get_contents($url);
-        if(!$response){
-            echo '--------------------------------------------------------------------', PHP_EOL;
-            echo 'ERROR: Provided URL(' . $url . ') has no Chronicle API!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
-            exit(1); 
-        }
-        $server = json_decode($response, true);
-        if(!$server || !in_array('public-key', array_keys($server))){
-            echo '--------------------------------------------------------------------', PHP_EOL;
-            echo 'ERROR: Server output cannot be parsed!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
-            exit(1);
-        }
-        $publicKey = $server['public-key'];
-        echo '--------------------------------------------------------------------', PHP_EOL;
-        echo 'Server Public Key: ' . $publicKey, PHP_EOL;
-        echo '--------------------------------------------------------------------', PHP_EOL;
-        echo 'Are you sure you want to add this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
-
-        if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
-            echo 'ABORTING!', PHP_EOL;
-            exit;
-        }
+        $publicKey = Chronicle::getServerPublicKey($url);
     }
     
     // Create a new cross-sign target

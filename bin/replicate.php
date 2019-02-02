@@ -47,7 +47,7 @@ Chronicle::setDatabase($db);
  */
 $getopt = new GetOpt([
     new Option(null, 'url', Getopt::REQUIRED_ARGUMENT),
-    new Option(null, 'publickey', Getopt::REQUIRED_ARGUMENT),
+    new Option(null, 'publickey', Getopt::OPTIONAL_ARGUMENT),
     new Option(null, 'name', Getopt::REQUIRED_ARGUMENT),
     new Option('i', 'instance', Getopt::OPTIONAL_ARGUMENT),
 ]);
@@ -76,12 +76,18 @@ try {
     exit(1);
 }
 
-if (!isset($url, $publicKey, $name)) {
+if (!isset($url, $name)) {
     echo "Not enough data. Please specify:\n",
     "\t--name\n",
-    "\t--publickey\n",
+    "\t--publickey (optional, will be fetched by URL)\n",
     "\t--url\n";
     exit(1);
+}
+
+// If public key not provided in the command line argument,
+// try to fetch it by provided URL.
+if (empty($publicKey)){
+    $publicKey = Chronicle::getServerPublicKey($url);
 }
 
 try {
