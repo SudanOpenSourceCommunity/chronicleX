@@ -122,7 +122,6 @@ if (is_string($publicKey)) {
 }
 
 if (empty($clientId)) {
-    $db->rollBack();
     echo '--clientid is mandatory for new cross-sign targets', PHP_EOL;
     exit(1);
 }
