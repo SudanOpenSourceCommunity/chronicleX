@@ -219,34 +219,44 @@ class Chronicle
      * Get a server Public Key by URL.
      *
      * @param string $url
+     * @param bool $isCLI
      * @return string
      *
      */
     public static function getServerPublicKey(
-        string $url
+        string $url,
+        bool $isCLI = true
     ): string {
         echo 'Fetching public key (' . $url . ')...', PHP_EOL;
         $response = file_get_contents($url);
         if(!$response){
             echo '--------------------------------------------------------------------', PHP_EOL;
             echo 'ERROR: Provided URL(' . $url . ') has no Chronicle API!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
-            exit(1); 
+            if($isCLI){
+                exit(1); 
+            }
+            return '';
         }
         $server = json_decode($response, true);
         if(!$server || !in_array('public-key', array_keys($server))){
             echo '--------------------------------------------------------------------', PHP_EOL;
             echo 'ERROR: Server output cannot be parsed!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
-            exit(1);
+            if($isCLI){
+                exit(1);
+            }
+            return '';
         }
         $publicKey = $server['public-key'];
         echo '--------------------------------------------------------------------', PHP_EOL;
         echo 'Server Public Key: ' . $publicKey, PHP_EOL;
         echo '--------------------------------------------------------------------', PHP_EOL;
-        echo 'Are you sure you want to add this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
-
-        if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
-            echo 'ABORTING!', PHP_EOL;
-            exit;
+        
+        if($isCLI){
+            echo 'Are you sure you want to add this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
+            if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
+                echo 'ABORTING!', PHP_EOL;
+                exit;
+            }
         }
         
         return $publicKey;
