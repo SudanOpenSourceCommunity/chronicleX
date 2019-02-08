@@ -263,6 +263,65 @@ class Chronicle
     }
 
     /**
+     * Generate a pagination statistics and parameters.
+     *
+     * @param string $name
+     * @param int $page
+     * @param int $perPage
+     *
+     * @return array
+     *
+     * @throws BaseException
+     */
+    public static function getPagination(
+        string $name,
+        int $page = 1,
+        int $perPage = 5
+    ): array {
+
+        /** @var int $currentPage */
+        $currentPage = (int) ($_GET['page'] ?? $page ?? 1);
+
+        /** @var array<int, array<string, string>> $statistic */
+        $statistic = Chronicle::getDatabase()->row(
+            "SELECT COUNT(*) as total
+             FROM " . Chronicle::getTableName($name)
+        );
+
+        // Calculate Limit and Offset ranges
+        /** 
+        * @var int $totalRows
+        * @var int $offset
+        * @var int $totalPages
+        */
+        $totalRows = (int) ($statistic['total'] ?? 0);
+        $offset = ($currentPage - 1) * $perPage;
+        $totalPages = ceil($totalRows / $perPage);
+
+        if($offset < 0){
+            $offset = 0;
+        }
+
+        // PostreSQL has a different structure for Pagination.
+        // But, MySQL and SQLite behave similar to each other.
+        /** @var string $paginationCondition */
+        $paginationCondition = Chronicle::getDatabase()->getDriver() === 'pgsql' ?
+            "LIMIT {$perPage} OFFSET {$offset}"
+            :
+            "LIMIT {$offset}, {$perPage}";
+
+        return [
+            $paginationCondition,
+            [
+                'current_page' => $currentPage ?: 1,
+                'per_page' => $perPage,
+                'total_pages' => $totalPages,
+                'total_rows' => $totalRows,
+            ],
+        ];
+    }
+
+    /**
      * Given a clients Public ID, retrieve their Ed25519 public key.
      *
      * @param string $clientId

@@ -104,6 +104,8 @@ class Replica implements HandlerInterface
      */
     public function exportChain(): ResponseInterface
     {
+        list($chain, $meta) = $this->getFullChain();
+        
         return Chronicle::getSapient()->createSignedJsonResponse(
             200,
             [
@@ -111,7 +113,8 @@ class Replica implements HandlerInterface
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
                 'notice' => static::NOTICE,
-                'results' => $this->getFullChain()
+                'results' => $chain ?? [],
+                'meta' => $meta ?? [],
             ],
             Chronicle::getSigningKey()
         );
@@ -179,10 +182,15 @@ class Replica implements HandlerInterface
     public function getLastHash(): ResponseInterface
     {
         /** @var array<string, string> $lasthash */
-        $lasthash = Chronicle::getDatabase()->row(
+        $record = Chronicle::getDatabase()->row(
             'SELECT
+                 data AS contents,
+                 prevhash,
                  currhash,
-                 summaryhash
+                 summaryhash,
+                 created,
+                 publickey,
+                 signature
              FROM
                  ' . Chronicle::getTableName('replication_chain') . '
              WHERE
@@ -199,12 +207,7 @@ class Replica implements HandlerInterface
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
                 'notice' => static::NOTICE,
-                'results' => [
-                    'curr-hash' =>
-                        $lasthash['currhash'],
-                    'summary-hash' =>
-                        $lasthash['summaryhash']
-                ]
+                'results' => $record,
             ],
             Chronicle::getSigningKey()
         );
@@ -277,6 +280,14 @@ class Replica implements HandlerInterface
      */
     public function getSince(array $args = []): ResponseInterface
     {
+        /** 
+        * @var string paginationCondition
+        * @var array meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'replication_chain', $page, $perPage
+        );
+
         /** @var int $id */
         $id = Chronicle::getDatabase()->cell(
             "SELECT
@@ -312,7 +323,7 @@ class Replica implements HandlerInterface
              WHERE
                  source = ? AND
                  id > ?
-            ",
+            " . $paginationCondition,
             $this->source,
             $id
         );
@@ -324,7 +335,8 @@ class Replica implements HandlerInterface
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
                 'notice' => static::NOTICE,
-                'results' => $since
+                'results' => $since,
+                'meta' => $meta,
             ],
             Chronicle::getSigningKey()
         );
@@ -339,9 +351,22 @@ class Replica implements HandlerInterface
     protected function getFullChain(): array
     {
         $chain = [];
+
+        /** 
+        * @var string paginationCondition
+        * @var array meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'replication_chain', $page, $perPage
+        );
+
         /** @var array<int, array<string, string>> $rows */
         $rows = Chronicle::getDatabase()->run(
-            "SELECT * FROM " . Chronicle::getTableName('replication_chain') . " WHERE source = ? ORDER BY id ASC",
+            "SELECT *
+             FROM " . Chronicle::getTableName('replication_chain') . "
+             WHERE source = ?
+             ORDER BY id ASC
+             " . $paginationCondition,
             $this->source
         );
         /** @var array<string, string> $row */
@@ -356,7 +381,10 @@ class Replica implements HandlerInterface
                 'signature' => $row['signature']
             ];
         }
-        return $chain;
+        return [
+            $chain,
+            $meta,
+        ];
     }
 
     /**
