@@ -320,10 +320,17 @@ class Chronicle
             :
             "LIMIT {$offset}, {$perPage}";
 
+        /** @var int $currentRows */
+        $currentRows = $currentPage == $totalPages ? 
+            ($totalRows - $perPage)
+            :
+            $perPage;
+
         return [
             $paginationCondition,
             [
                 'current_page' => $currentPage ?: 1,
+                'current_rows' => $currentRows,
                 'per_page' => $perPage,
                 'total_pages' => $totalPages,
                 'total_rows' => $totalRows,
