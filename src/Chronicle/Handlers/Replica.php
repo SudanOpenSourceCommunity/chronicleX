@@ -283,25 +283,11 @@ class Replica implements HandlerInterface
      */
     public function getSince(array $args = [], int $page = 1, int $perPage = 5): ResponseInterface
     {
-        /** 
-        * @var string paginationCondition
-        * @var array meta
-        */
-        list($paginationCondition, $meta) = Chronicle::getPagination(
-            'replication_chain', $page, $perPage
-        );
-
         /** @var int $id */
         $id = Chronicle::getDatabase()->cell(
-            "SELECT
-                 id
-             FROM
-                 " . Chronicle::getTableName('replication_chain') . "
-             WHERE
-                 source = ? AND (
-                     currhash = ?
-                     OR summaryhash = ?
-                 )
+            "SELECT id
+             FROM  " . Chronicle::getTableName('replication_chain') . "
+             WHERE " . $queryCondition . "
              ORDER BY id ASC
             ",
             $this->source,
@@ -311,6 +297,24 @@ class Replica implements HandlerInterface
         if (!$id) {
             throw new HashNotFound('No record found matching this hash.');
         }
+
+        /** @var string queryCondition */
+        $queryCondition = '
+            source = ? AND
+            id > ?
+        ';
+
+        /** 
+        * @var string paginationCondition
+        * @var array meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'replication_chain', $page, $perPage, $queryCondition, [
+                $this->source,
+                $id,
+            ]
+        );
+
         /** @var array<int, array<string, string>> $since */
         $since = Chronicle::getDatabase()->run(
             "SELECT
@@ -321,14 +325,11 @@ class Replica implements HandlerInterface
                  created,
                  publickey,
                  signature
-             FROM
-                 " . Chronicle::getTableName('replication_chain') . "
-             WHERE
-                 source = ? AND
-                 id > ?
-            " . $paginationCondition,
-            $this->source,
-            $id
+             FROM  " . Chronicle::getTableName('replication_chain') . "
+             WHERE " . $queryCondition . "
+                   " . $paginationCondition
+            , $this->source
+            , $id
         );
 
         return Chronicle::getSapient()->createSignedJsonResponse(

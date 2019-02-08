@@ -268,6 +268,8 @@ class Chronicle
      * @param string $name
      * @param int $page
      * @param int $perPage
+     * @param string $condition
+     * @param array $parameters
      *
      * @return array
      *
@@ -276,17 +278,25 @@ class Chronicle
     public static function getPagination(
         string $name,
         int $page = 1,
-        int $perPage = 5
+        int $perPage = 5,
+        string $condition = '',
+        array $parameters = []
     ): array {
 
         /** @var int $currentPage */
         $currentPage = (int) ($_GET['page'] ?? $page ?? 1);
 
         /** @var array<int, array<string, string>> $statistic */
-        $statistic = Chronicle::getDatabase()->row(
+        $statistic = Chronicle::getDatabase()->safeQuery(
             "SELECT COUNT(*) as total
-             FROM " . Chronicle::getTableName($name)
+             FROM  " . Chronicle::getTableName($name) . "
+             WHERE " . ($condition ?: ' 1 = 1 ')
+            , $parameters
         );
+        
+        if (\is_array($statistic)) {
+            $statistic = \array_shift($statistic);
+        }
 
         // Calculate Limit and Offset ranges
         /** 

@@ -84,7 +84,7 @@ class Lookup implements HandlerInterface
     public function exportChain(): ResponseInterface
     {
         list($chain, $meta) = $this->getFullChain();
-        
+
         return Chronicle::getSapient()->createSignedJsonResponse(
             200,
             [
@@ -196,23 +196,11 @@ class Lookup implements HandlerInterface
      */
     public function getSince(array $args = [], int $page = 1, int $perPage = 5): ResponseInterface
     {
-        /** 
-        * @var string paginationCondition
-        * @var array meta
-        */
-        list($paginationCondition, $meta) = Chronicle::getPagination(
-            'chain', $page, $perPage
-        );
-
         /** @var int $id */
         $id = Chronicle::getDatabase()->cell(
-            "SELECT
-                 id
-             FROM
-                 " . Chronicle::getTableName('chain') . "
-             WHERE
-                 currhash = ?
-                 OR summaryhash = ?
+            "SELECT id
+             FROM  " . Chronicle::getTableName('chain') . "
+             WHERE currhash = ? OR summaryhash = ?
              ORDER BY id ASC
             ",
             $args['hash'],
@@ -221,6 +209,22 @@ class Lookup implements HandlerInterface
         if (!$id) {
             throw new HashNotFound('No record found matching this hash.');
         }
+
+        /** @var string queryCondition */
+        $queryCondition = '
+            id > ?
+        ';
+
+        /** 
+        * @var string paginationCondition
+        * @var array meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'chain', $page, $perPage, $queryCondition, [
+                $id,
+            ]
+        );
+
         /** @var array<int, array<string, string>> $since */
         $since = Chronicle::getDatabase()->run(
             "SELECT
@@ -231,12 +235,10 @@ class Lookup implements HandlerInterface
                  created,
                  publickey,
                  signature
-             FROM
-                 " . Chronicle::getTableName('chain') . "
-             WHERE
-                 id > ?
-            " . $paginationCondition,
-            $id
+             FROM  " . Chronicle::getTableName('chain') . "
+             WHERE " . $queryCondition . "
+                   " . $paginationCondition
+            , $id
         );
 
         return Chronicle::getSapient()->createSignedJsonResponse(
