@@ -101,6 +101,8 @@ class Replicate
     /**
      * Append new data to the replication table.
      *
+     * @param int $page
+     *
      * @return void
      *
      * @throws GuzzleException
@@ -108,12 +110,19 @@ class Replicate
      * @throws SecurityViolation
      * @throws \SodiumException
      */
-    public function replicate()
+    public function replicate(int $page = 1)
     {
         $response = $this->getUpstream($this->getLatestSummaryHash());
+
+        $totalPages = $response['meta']['total_pages'] ?? 1;
+
         /** @var array<string, string> $row */
         foreach ($response['results'] as $row) {
             $this->appendToChain($row);
+        }
+
+        if($page < $totalPages){
+            $this->replicate($page + 1);
         }
     }
 
@@ -246,17 +255,17 @@ class Replicate
      * @throws GuzzleException
      * @throws InvalidMessageException
      */
-    protected function getUpstream(string $lastHash = ''): array
+    protected function getUpstream(string $lastHash = '', $page = 1): array
     {
         if ($lastHash) {
             $request = new Request(
                 'GET',
-                $this->url . '/since/' . \urlencode($lastHash)
+                $this->url . '/since/' . \urlencode($lastHash) . '?page=' . $page
             );
         } else {
             $request = new Request(
                 'GET',
-                $this->url . '/export'
+                $this->url . '/export' . '?page=' . $page
             );
         }
         return $this->sapient->decodeSignedJsonResponse(
