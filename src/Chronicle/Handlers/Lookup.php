@@ -83,13 +83,16 @@ class Lookup implements HandlerInterface
      */
     public function exportChain(): ResponseInterface
     {
+        $chain = $this->getFullChain();
+        
         return Chronicle::getSapient()->createSignedJsonResponse(
             200,
             [
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
-                'results' => $this->getFullChain()
+                'results' => $chain['data'] ?? [],
+                'meta' => $chain['meta'] ?? [],
             ],
             Chronicle::getSigningKey()
         );
@@ -181,6 +184,9 @@ class Lookup implements HandlerInterface
      * Get updates to the chain since a given hash
      *
      * @param array $args
+     * @param int $page
+     * @param int $perPage
+     *
      * @return ResponseInterface
      *
      * @throws \Exception
@@ -188,8 +194,39 @@ class Lookup implements HandlerInterface
      * @throws HashNotFound
      * @throws InvalidInstanceException
      */
-    public function getSince(array $args = []): ResponseInterface
+    public function getSince(array $args = [], int $page = 1, int $perPage = 5): ResponseInterface
     {
+        /** @var int $currentPage */
+        $currentPage = (int) ($_GET['page'] ?? $page ?? 1);
+
+        /** @var array<int, array<string, string>> $statistic */
+        $statistic = Chronicle::getDatabase()->row(
+            "SELECT COUNT(*) as total
+             FROM " . Chronicle::getTableName('chain')
+        );
+
+        // Calculate Limit and Offset ranges
+        /** 
+        * @var int $totalRows
+        * @var int $offset
+        * @var int $totalPages
+        */
+        $totalRows = (int) ($statistic['total'] ?? 0);
+        $offset = ($currentPage - 1) * $perPage;
+        $totalPages = ceil($totalRows / $perPage);
+
+        if($offset < 0){
+            $offset = 0;
+        }
+
+        // PostreSQL has a different structure for Pagination.
+        // But, MySQL and SQLite behave similar to each other.
+        /** @var string $paginationCondition */
+        $paginationCondition = Chronicle::getDatabase()->getDriver() === 'pgsql' ?
+            "LIMIT {$perPage} OFFSET {$offset}"
+            :
+            "LIMIT {$offset}, {$perPage}";
+
         /** @var int $id */
         $id = Chronicle::getDatabase()->cell(
             "SELECT
@@ -221,7 +258,7 @@ class Lookup implements HandlerInterface
                  " . Chronicle::getTableName('chain') . "
              WHERE
                  id > ?
-            ",
+            " . $paginationCondition,
             $id
         );
 
@@ -231,7 +268,13 @@ class Lookup implements HandlerInterface
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
-                'results' => $since
+                'results' => $since,
+                'meta' => [
+                    'current_page' => $currentPage ?: 1,
+                    'per_page' => $perPage,
+                    'total_pages' => $totalPages,
+                    'total_rows' => $totalRows,
+                ],
             ],
             Chronicle::getSigningKey()
         );

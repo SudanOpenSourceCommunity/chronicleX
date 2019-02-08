@@ -8,6 +8,14 @@ First, run the following command:
 ```bash
 php bin/replicate.php \
     --url=http://target-chronicle \
+    --name=[whatever you want to refer to it]
+```
+
+Or you can add public key manually
+
+```bash
+php bin/replicate.php \
+    --url=http://target-chronicle \
     --publickey=[public key of target chronicle] \
     --name=[whatever you want to refer to it]
 ```
