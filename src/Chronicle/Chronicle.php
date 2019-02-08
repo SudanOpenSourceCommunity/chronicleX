@@ -326,7 +326,7 @@ class Chronicle
             :
             $perPage;
 
-        if($currentRows < 0 && $totalRows < $perPage){
+        if($currentRows < 0 || $totalRows <= $perPage){
             $currentRows = $totalRows;
         }
 
