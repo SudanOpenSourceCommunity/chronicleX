@@ -326,6 +326,10 @@ class Chronicle
             :
             $perPage;
 
+        if($currentRows < 0 && $totalRows < $perPage){
+            $currentRows = $totalRows;
+        }
+
         return [
             $paginationCondition,
             [
