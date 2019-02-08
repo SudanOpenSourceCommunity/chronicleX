@@ -287,7 +287,10 @@ class Replica implements HandlerInterface
         $id = Chronicle::getDatabase()->cell(
             "SELECT id
              FROM  " . Chronicle::getTableName('replication_chain') . "
-             WHERE " . $queryCondition . "
+             WHERE source = ? AND (
+                 currhash = ?
+                 OR summaryhash = ?
+             )
              ORDER BY id ASC
             ",
             $this->source,
