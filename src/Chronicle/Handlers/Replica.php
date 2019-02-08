@@ -105,7 +105,7 @@ class Replica implements HandlerInterface
     public function exportChain(): ResponseInterface
     {
         list($chain, $meta) = $this->getFullChain();
-        
+
         return Chronicle::getSapient()->createSignedJsonResponse(
             200,
             [
@@ -271,6 +271,9 @@ class Replica implements HandlerInterface
      * Get updates to the replica since a given hash
      *
      * @param array $args
+     * @param int $page
+     * @param int $perPage
+     *
      * @return ResponseInterface
      *
      * @throws \Exception
@@ -278,7 +281,7 @@ class Replica implements HandlerInterface
      * @throws HashNotFound
      * @throws InvalidInstanceException
      */
-    public function getSince(array $args = []): ResponseInterface
+    public function getSince(array $args = [], int $page = 1, int $perPage = 5): ResponseInterface
     {
         /** 
         * @var string paginationCondition
@@ -343,12 +346,16 @@ class Replica implements HandlerInterface
     }
 
     /**
-     * Export an entire replicated chain, as-is.
+     * Export an paginated replicated chain, as-is.
+     *
+     * @param int $page
+     * @param int $perPage
      *
      * @return array
+     *
      * @throws InvalidInstanceException
      */
-    protected function getFullChain(): array
+    protected function getFullChain(int $page = 1, int $perPage = 5): array
     {
         $chain = [];
 
