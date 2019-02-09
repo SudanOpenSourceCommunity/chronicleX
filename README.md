@@ -36,6 +36,7 @@ These are the following features that will be exists in the ChronicleX:
 - [x] `chronicle/replica/{replica}/since` Pagination.
 - [x] Fetch "Public Key" by URL in replica command line.
 - [x] Fetch "Public Key" by URL in cross-sign command line.
+- [ ] Make tests to covers (SQLite, MySQL & PostgreSQL) Databases at once.
 - [ ] Create `chronicle/instances` API with option to hide some instances.
 
 ## Getting Started with Chronicle (Documentation)
