@@ -90,6 +90,7 @@ class Lookup implements HandlerInterface
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
+                'public-key' => $settings['signing-public-key'] ?? '',
                 'results' => \array_keys($settings['instances']) ?? [],
             ],
             Chronicle::getSigningKey()
