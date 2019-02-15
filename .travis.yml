@@ -24,19 +24,44 @@ install:
     - composer self-update
     - composer update
 
-script:
-    # Test SQLite
-    - php bin/install.php
-    - php bin/make-tables.php
-    - composer test
-    - composer static-analysis
-    # Test MySQL
-    - php bin/install.php --mysql --host 127.0.0.1 -u root --database test
-    - php bin/make-tables.php
-    - composer test
-    - composer static-analysis
-    # Test PostgreSQL
-    - php bin/install.php --pgsql -u postgres --database travis_ci_test
-    - php bin/make-tables.php
-    - composer test
-    - composer static-analysis
+# script:
+#     # Test SQLite
+#     - php bin/install.php
+#     - php bin/make-tables.php
+#     - composer test
+#     - composer static-analysis
+#     # Test MySQL
+#     - php bin/install.php --mysql --host 127.0.0.1 -u root --database test
+#     - php bin/make-tables.php
+#     - composer test
+#     - composer static-analysis
+#     # Test PostgreSQL
+#     - php bin/install.php --pgsql -u postgres --database travis_ci_test
+#     - php bin/make-tables.php
+#     - composer test
+#     - composer static-analysis
+
+# Stages still in beta
+jobs:
+    include:
+        # Test SQLite
+        -   stage: "Test SQLite Database"
+            name: "Test SQLite Database"
+            script: php bin/install.php
+            script: php bin/make-tables.php
+            script: composer test
+            script: composer static-analysis
+        # Test MySQL
+        -   stage: "Test MySQL Database"
+            name: "Test MySQL Database"
+            script: php bin/install.php --mysql --host 127.0.0.1 -u root --database test
+            script: php bin/make-tables.php
+            script: composer test
+            script: composer static-analysis
+        # Test PostgreSQL
+        -   stage: "Test PostgreSQL Database"
+            name: "Test PostgreSQL Database"
+            script: php bin/install.php --pgsql -u postgres --database travis_ci_test
+            script: php bin/make-tables.php
+            script: composer test
+            script: composer static-analysis
