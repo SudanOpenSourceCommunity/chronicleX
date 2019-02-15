@@ -28,6 +28,7 @@ CREATE TABLE chronicle_replication_chain (
   signature TEXT NOT NULL,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   replicated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(currhash),
   FOREIGN KEY (source) REFERENCES chronicle_replication_sources(id),
   FOREIGN KEY (prevhash) REFERENCES chronicle_replication_chain(currhash),
   UNIQUE(source, prevhash)
