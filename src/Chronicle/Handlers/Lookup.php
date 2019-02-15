@@ -215,8 +215,10 @@ class Lookup implements HandlerInterface
             id > ?
         ';
 
-        /** @var string $paginationCondition*/
-        /** @var array<string, int>  $meta */
+        /** 
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
+        */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'chain', $page, $perPage, $queryCondition, [
                 $id,
@@ -266,8 +268,8 @@ class Lookup implements HandlerInterface
         $chain = [];
 
         /** 
-        * @var string paginationCondition
-        * @var array meta
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
         */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'chain', $page, $perPage

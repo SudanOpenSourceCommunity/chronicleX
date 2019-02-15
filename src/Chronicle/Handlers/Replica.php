@@ -225,8 +225,8 @@ class Replica implements HandlerInterface
     protected function getIndex(int $page = 1, int $perPage = 5): ResponseInterface
     {
         /** 
-        * @var string paginationCondition
-        * @var array meta
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
         */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'replication_sources', $page, $perPage
@@ -311,15 +311,15 @@ class Replica implements HandlerInterface
             throw new HashNotFound('No record found matching this hash.');
         }
 
-        /** @var string queryCondition */
+        /** @var string $queryCondition */
         $queryCondition = '
             source = ? AND
             id > ?
         ';
 
         /** 
-        * @var string paginationCondition
-        * @var array meta
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
         */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'replication_chain', $page, $perPage, $queryCondition, [
@@ -374,8 +374,8 @@ class Replica implements HandlerInterface
         $chain = [];
 
         /** 
-        * @var string paginationCondition
-        * @var array meta
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
         */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'replication_chain', $page, $perPage
