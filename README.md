@@ -39,7 +39,9 @@ These are the following features that will be exists in the ChronicleX:
 - [x] Fetch "Public Key" by URL in cross-sign command line.
 - [x] Make replication command to fetch data while its resources is paginated.
 - [x] `chronicle/replica` Pagination.
-- [ ] Make tests to covers (SQLite, MySQL & PostgreSQL) Databases at once.
+- [x] Make tests to covers (SQLite, MySQL & PostgreSQL) Databases at once.
+- [ ] Revise cross-sign functionality.
+- [ ] Revise tests to cover all functionalities.
 - [ ] Create `chronicle/instances` API with option to hide some instances.
 - [ ] Make cross-sign command to fetch data while its resources is paginated.
 
