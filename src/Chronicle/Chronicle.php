@@ -50,7 +50,7 @@ class Chronicle
     const CLIENT_IDENTIFIER_HEADER = 'Chronicle-Client-Key-ID';
 
     /* This constant denotes the Chronicle version running, server-side */
-    const VERSION = '1.2.0-alpha.1';
+    const VERSION = '1.2.0-alpha.2';
 
     /**
      * @param string $name
