@@ -222,8 +222,16 @@ class Replica implements HandlerInterface
      * @throws FilesystemException
      * @throws InvalidInstanceException
      */
-    protected function getIndex(): ResponseInterface
+    protected function getIndex(int $page = 1, int $perPage = 5): ResponseInterface
     {
+        /** 
+        * @var string paginationCondition
+        * @var array meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'replication_sources', $page, $perPage
+        );
+
         /** @var array<int, array<string, string>> $replicationSources */
         $replicationSources = Chronicle::getDatabase()->run(
             "SELECT
@@ -232,7 +240,8 @@ class Replica implements HandlerInterface
                 name,
                 publickey AS serverPublicKey
              FROM
-                " . Chronicle::getTableName('replication_sources')
+                " . Chronicle::getTableName('replication_sources') . "
+                " . $paginationCondition
         );
         /**
          * @var int $idx
@@ -261,7 +270,8 @@ class Replica implements HandlerInterface
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
-                'results' => $replicationSources
+                'results' => $replicationSources,
+                'meta' => $meta ?? [],
             ],
             Chronicle::getSigningKey()
         );
