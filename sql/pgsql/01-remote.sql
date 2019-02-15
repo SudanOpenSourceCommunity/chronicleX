@@ -30,6 +30,8 @@ CREATE TABLE chronicle_replication_chain (
   replicated TIMESTAMP,
   FOREIGN KEY (source) REFERENCES chronicle_replication_sources(id),
   FOREIGN KEY (currhash) REFERENCES chronicle_replication_chain(prevhash),
+  UNIQUE(currhash),
+  UNIQUE(prevhash),
   UNIQUE(source, prevhash)
 );
 
