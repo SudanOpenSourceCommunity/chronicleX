@@ -22,7 +22,6 @@ CREATE TABLE chronicle_chain (
   created TIMESTAMP,
   UNIQUE(currhash),
   UNIQUE(prevhash),
-  UNIQUE(signature),
   FOREIGN KEY (prevhash) REFERENCES chronicle_chain(currhash)
 );
 
