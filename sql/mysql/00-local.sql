@@ -24,5 +24,7 @@ CREATE TABLE chronicle_chain (
   INDEX(`currhash`),
   INDEX(`summaryhash`),
   FOREIGN KEY (`prevhash`) REFERENCES chronicle_chain(`currhash`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  UNIQUE(`prevhash`)
+  UNIQUE(`prevhash`),
+  UNIQUE(`currhash`),
+  UNIQUE(`signature`)
 );
