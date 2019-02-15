@@ -1,5 +1,5 @@
 {
-    "name": "SudanOpenSourceCommunity/chronicleX",
+    "name": "sudan-open-source-community/chronicle-x",
     "description": "Public hash chain powered by Slim Framework, Sapient, and Blakechain",
     "keywords": ["sapient", "blakechain", "hash-chain", "security", "hash", "BLAKE2", "BLAKE2b", "append-only", "cryptography"],
     "homepage": "http://github.com/SudanOpenSourceCommunity/chronicleX",
@@ -7,14 +7,14 @@
     "type": "project",
     "authors": [
         {
-            "name": "Paragon Initiative Enterprises",
-            "email": "security@paragonie.com",
-            "homepage": "https://paragonie.com"
-        },
-        {
             "name": "Abdelaziz Elrashed",
             "email": "aeemh.sdn@gmail.com",
             "homepage": "http://vzool.net"
+        },
+        {
+            "name": "Paragon Initiative Enterprises",
+            "email": "security@paragonie.com",
+            "homepage": "https://paragonie.com"
         }
     ],
     "require": {
