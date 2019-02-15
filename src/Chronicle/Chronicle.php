@@ -237,6 +237,7 @@ class Chronicle
             }
             return '';
         }
+        /** @var array<string, string> $server */
         $server = json_decode($response, true);
         if(!$server || !in_array('public-key', array_keys($server))){
             echo '--------------------------------------------------------------------', PHP_EOL;
@@ -246,6 +247,7 @@ class Chronicle
             }
             return '';
         }
+        /** @var string $publicKey */
         $publicKey = $server['public-key'];
         echo '--------------------------------------------------------------------', PHP_EOL;
         echo 'Server Public Key: ' . $publicKey, PHP_EOL;

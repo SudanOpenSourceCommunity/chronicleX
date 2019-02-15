@@ -114,6 +114,7 @@ class Replicate
     {
         $response = $this->getUpstream($this->getLatestSummaryHash());
 
+        /** @var int $totalPages */
         $totalPages = $response['meta']['total_pages'] ?? 1;
 
         /** @var array<string, string> $row */
@@ -250,12 +251,13 @@ class Replicate
      * Get the updates from the upstream server.
      *
      * @param string $lastHash
+     * @param int $page
      * @return array
      *
      * @throws GuzzleException
      * @throws InvalidMessageException
      */
-    protected function getUpstream(string $lastHash = '', $page = 1): array
+    protected function getUpstream(string $lastHash = '', int $page = 1): array
     {
         if ($lastHash) {
             $request = new Request(

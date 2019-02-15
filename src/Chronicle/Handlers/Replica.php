@@ -182,7 +182,7 @@ class Replica implements HandlerInterface
     public function getLastHash(): ResponseInterface
     {
         /** @var array<string, string> $lasthash */
-        $record = Chronicle::getDatabase()->row(
+        $lasthash = Chronicle::getDatabase()->row(
             'SELECT
                  data AS contents,
                  prevhash,
@@ -207,7 +207,7 @@ class Replica implements HandlerInterface
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
                 'notice' => static::NOTICE,
-                'results' => $record,
+                'results' => $lasthash,
             ],
             Chronicle::getSigningKey()
         );
