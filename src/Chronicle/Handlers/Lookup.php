@@ -210,15 +210,13 @@ class Lookup implements HandlerInterface
             throw new HashNotFound('No record found matching this hash.');
         }
 
-        /** @var string queryCondition */
+        /** @var string $queryCondition */
         $queryCondition = '
             id > ?
         ';
 
-        /** 
-        * @var string paginationCondition
-        * @var array meta
-        */
+        /** @var string $paginationCondition*/
+        /** @var array<string, int>  $meta */
         list($paginationCondition, $meta) = Chronicle::getPagination(
             'chain', $page, $perPage, $queryCondition, [
                 $id,
