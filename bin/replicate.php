@@ -87,6 +87,7 @@ if (!isset($url, $name)) {
 // If public key not provided in the command line argument,
 // try to fetch it by provided URL.
 if (empty($publicKey)){
+    /** @var string $publicKey */
     $publicKey = Chronicle::getServerPublicKey($url);
 }
 

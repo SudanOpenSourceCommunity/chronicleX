@@ -1,6 +1,6 @@
 <h1 id="chronicle"><img src="https://paragonie.com/static/images/chronicle-logo.svg" width="50" /> ChronicleX</h1>
 
-[![Build Status](https://travis-ci.org/paragonie/chronicle.svg?branch=master)](https://travis-ci.org/paragonie/chronicle)
+[![Build Status](https://travis-ci.org/SudanOpenSourceCommunity/chronicleX.svg?branch=master)](https://travis-ci.org/SudanOpenSourceCommunity/chronicleX)
 [![Latest Stable Version](https://poser.pugx.org/paragonie/chronicle/v/stable)](https://packagist.org/packages/paragonie/chronicle)
 [![Latest Unstable Version](https://poser.pugx.org/paragonie/chronicle/v/unstable)](https://packagist.org/packages/paragonie/chronicle)
 [![License](https://poser.pugx.org/paragonie/chronicle/license)](https://packagist.org/packages/paragonie/chronicle)
