@@ -63,6 +63,9 @@ class Index implements HandlerInterface
     {
         return [
             [
+                'uri' => '/chronicle/instances',
+                'description' => 'List all Chronicle instances'
+            ], [
                 'uri' => '/chronicle/lasthash',
                 'description' => 'Get information about the latest entry in this Chronicle'
             ], [

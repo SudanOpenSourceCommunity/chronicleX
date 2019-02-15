@@ -50,6 +50,7 @@ $app->group('/chronicle', function () {
         ->add(CheckClientSignature::class);
 
     // Public:
+    $self->get('/instances', 'lookup.instances');
     $self->get('/lasthash', 'lookup.lasthash');
     $self->get('/lookup/{hash}', 'lookup.hash');
     $self->get('/since/{hash}', 'lookup.since');
@@ -100,6 +101,9 @@ $container[Revoke::class] = function () {
 };
 $container[Publish::class] = function () {
     return new Publish();
+};
+$container['lookup.instances'] = function () {
+    return new Lookup('instances');
 };
 $container['lookup.lasthash'] = function () {
     return new Lookup('lasthash');

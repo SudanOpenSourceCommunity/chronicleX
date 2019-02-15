@@ -50,6 +50,9 @@ class Lookup implements HandlerInterface
         try {
             // Whitelist of acceptable methods:
             switch ($this->method) {
+                case 'instances':
+                    return $this->getInstances();
+                    break;
                 case 'export':
                     return $this->exportChain();
                 case 'lasthash':
@@ -69,6 +72,28 @@ class Lookup implements HandlerInterface
             return Chronicle::errorResponse($response, $ex->getMessage());
         }
         return Chronicle::errorResponse($response, 'Unknown method: '.$this->method);
+    }
+
+    /**
+     * Get list of Chronicle instances.
+     *
+     * @return ResponseInterface
+     */
+    public function getInstances(): ResponseInterface
+    {
+        /** @var array<string, array<string, string>> $settings */
+        $settings = Chronicle::getSettings();
+
+        return Chronicle::getSapient()->createSignedJsonResponse(
+            200,
+            [
+                'version' => Chronicle::VERSION,
+                'datetime' => (new \DateTime())->format(\DateTime::ATOM),
+                'status' => 'OK',
+                'results' => \array_keys($settings['instances']) ?? [],
+            ],
+            Chronicle::getSigningKey()
+        );
     }
 
     /**
