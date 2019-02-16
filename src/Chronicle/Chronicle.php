@@ -45,12 +45,18 @@ class Chronicle
     /** @var string $tablePrefix */
     protected static $tablePrefix = '';
 
+    /* This constant denotes the Chronicle data naming prefix */
+    const NAMING_PREFIX = 'chronicle';
+
+    /* This constant denotes the Chronicle data naming separator */
+    const SEPARATOR = '_';
+
     /* This constant is the name of the header used to find the
        corresponding public key: */
     const CLIENT_IDENTIFIER_HEADER = 'Chronicle-Client-Key-ID';
 
     /* This constant denotes the Chronicle version running, server-side */
-    const VERSION = '1.2.0-alpha.3';
+    const VERSION = '1.2.0-alpha.4';
 
     /**
      * @param string $name
@@ -62,11 +68,13 @@ class Chronicle
     {
         if (empty(self::$tablePrefix)) {
             if ($dontEscape) {
-                return 'chronicle_' . $name;
+                return \join(Chronicle::SEPARATOR, [
+                    Chronicle::NAMING_PREFIX, $name
+                ]);
             }
-            return self::$easyDb->escapeIdentifier(
-                'chronicle_' . $name
-            );
+            return self::$easyDb->escapeIdentifier(\join(Chronicle::SEPARATOR, [
+                Chronicle::NAMING_PREFIX, $name
+            ]));
         }
         if (self::$tablePrefix === 'replication') {
             throw new InvalidInstanceException(
@@ -74,11 +82,13 @@ class Chronicle
             );
         }
         if ($dontEscape) {
-            return 'chronicle_' . self::$tablePrefix . '_' . $name;
+            return \join(Chronicle::SEPARATOR, [
+                Chronicle::NAMING_PREFIX, self::$tablePrefix, $name
+            ]);
         }
-        return self::$easyDb->escapeIdentifier(
-            'chronicle_' . self::$tablePrefix . '_' . $name
-        );
+        return self::$easyDb->escapeIdentifier(\join(Chronicle::SEPARATOR, [
+            Chronicle::NAMING_PREFIX, self::$tablePrefix, $name
+        ]));
     }
 
     /**
