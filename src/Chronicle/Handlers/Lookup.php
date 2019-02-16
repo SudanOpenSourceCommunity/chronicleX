@@ -81,8 +81,11 @@ class Lookup implements HandlerInterface
      */
     public function getInstances(): ResponseInterface
     {
-        /** @var array<string, array<string, string>> $settings */
-        $settings = Chronicle::getSettings();
+        /**
+        * @var array<string> $instances
+        * @var string $publickey
+        */
+        list($instances, $publickey) = Chronicle::getInstances();
 
         return Chronicle::getSapient()->createSignedJsonResponse(
             200,
@@ -90,8 +93,8 @@ class Lookup implements HandlerInterface
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
-                'public-key' => $settings['signing-public-key'] ?? '',
-                'results' => \array_keys($settings['instances']) ?? [],
+                'public-key' => $publickey,
+                'results' => $instances,
             ],
             Chronicle::getSigningKey()
         );

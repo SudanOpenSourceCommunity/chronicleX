@@ -56,7 +56,7 @@ class Chronicle
     const CLIENT_IDENTIFIER_HEADER = 'Chronicle-Client-Key-ID';
 
     /* This constant denotes the Chronicle version running, server-side */
-    const VERSION = '1.2.0-alpha.4';
+    const VERSION = '1.2.0-alpha.5';
 
     /**
      * @param string $name
@@ -89,6 +89,22 @@ class Chronicle
         return self::$easyDb->escapeIdentifier(\join(Chronicle::SEPARATOR, [
             Chronicle::NAMING_PREFIX, self::$tablePrefix, $name
         ]));
+    }
+
+    /**
+     * Get list of Chronicle instances and server public key.
+     *
+     * @return array
+     */
+    public static function getInstances(): array
+    {
+        /** @var array<string, array<string, string>> $settings */
+        $settings = Chronicle::getSettings();
+
+        return [
+            \array_keys($settings['instances']) ?? [],
+            $settings['signing-public-key'] ?? '',
+        ];
     }
 
     /**
@@ -238,7 +254,7 @@ class Chronicle
         bool $isCLI = true
     ): string {
         echo 'Fetching public key (' . $url . ')...', PHP_EOL;
-        $response = file_get_contents($url);
+        $response = \file_get_contents($url);
         if(!$response){
             echo '--------------------------------------------------------------------', PHP_EOL;
             echo 'ERROR: Provided URL(' . $url . ') has no Chronicle API!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
@@ -248,8 +264,8 @@ class Chronicle
             return '';
         }
         /** @var array<string, string> $server */
-        $server = json_decode($response, true);
-        if(!$server || !in_array('public-key', array_keys($server))){
+        $server = \json_decode($response, true);
+        if(!$server || !\in_array('public-key', \array_keys($server))){
             echo '--------------------------------------------------------------------', PHP_EOL;
             echo 'ERROR: Server output cannot be parsed!!! Make sure that URL should ends up with correct \'/chronicle\'...', PHP_EOL;
             if($isCLI){
@@ -265,7 +281,7 @@ class Chronicle
         
         if($isCLI){
             echo 'Are you sure you want to add this? Type \'yes\' to continue, or press \'enter\' to exit: ', PHP_EOL;
-            if(strtolower(trim(fgets(fopen ('php://stdin', 'r')))) != 'yes'){
+            if(\strtolower(\trim(\fgets(\fopen ('php://stdin', 'r')))) != 'yes'){
                 echo 'ABORTING!', PHP_EOL;
                 exit;
             }
