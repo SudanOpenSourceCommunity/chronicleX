@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ChroncileX Explorer</title>
+	<!-- HTTP Client Library -->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<!-- VueJS -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js"></script>
+	<!-- Underscore -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" integrity="sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0=" crossorigin="anonymous"></script>
+	<!-- jQuery -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<style type="text/css">
+		body {
+			margin: 
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			color: #aaa;
+			font-size: 18px;
+		}
+		h1 {
+			color: #719e40;
+			letter-spacing: -3px;
+			font-family: 'Lato', sans-serif;
+			font-size: 50px;
+			font-weight: 200;
+			line-height: 1;
+			margin-top: 40px;
+			margin-bottom: 0;
+		}
+		h1 img {
+			height: 1em;
+			vertical-align: text-bottom;
+		}
+	</style>
+</head>
+<body>
+	<div class="container mx-auto">
+		<h1 class="text-center">
+			<img src="./../chronicle-logo.svg" />
+			&nbsp;ChronicleX&nbsp;&nbsp;&nbsp;Explorer
+		</h1>
+		<div id="app">
+			<small class="text-center">Client v0.0.1 - Server {{ version }}</small>
+			<div class="row">
+				<div class="col-md-4">
+					<select v-model="instance" class="form-control custom-select">
+						<option v-for="instance in instances" value="instance.value">{{ instance.label }}</option>
+					</select>
+				</div>
+				<div class="col-md-8">
+					<input class="form-control" type="text" value="" placeholder="Search by hash or summary hash..">
+				</div>
+			</div>
+			<hr/>
+			<table class="table table-bordered">
+				<tr class="text-center">
+					<th>ID</th>
+					<th>Blocks</th>
+					<th>Created</th>
+				</tr>
+				<tr v-for="(block, index) in blocks">
+					<td class="text-center"><h3>{{ index + 1 }}</h3></td>
+					<td>
+						<span v-if="!block.prev" class="badge badge-primary">Genesis Block</span>
+						<span v-else class="badge badge-info">
+							<small><b>Previous Block</b>: {{ block.prev }}</small>
+						</span>
+						<details class="alert-secondary">
+							<summary>Contents</summary>
+							<p class="text-center"><br/>{{ block.contents }}</p>
+							<span class="badge badge-dark">
+								<small><b>Signature</b>: {{ block.signature }}</small>
+							</span>
+							<span class="badge badge-dark">
+								<small><b>Public Key</b>: {{ block.publickey }}</small>
+							</span>
+							<span class="badge badge-dark">
+								<small><b>Summary</b>: {{ block.summary }}</small>
+							</span>
+						</details>
+						<span class="badge badge-warning">
+							<small><b>Block Hash</b>: {{ block.hash }}</small>
+						</span>
+					</td>
+					<td class="text-center">{{ block.created }}</td>
+				</tr>
+			</table>
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">
+					<li class="page-item"><a class="page-link" href="#">Previous</a></li>
+					<li class="page-item"><a class="page-link" href="#">1</a></li>
+					<li class="page-item"><a class="page-link" href="#">2</a></li>
+					<li class="page-item"><a class="page-link" href="#">3</a></li>
+					<li class="page-item"><a class="page-link" href="#">Next</a></li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var app = new Vue({
+			el: '#app',
+			data: {
+				instance: '',
+				page: 1,
+				info: [],
+				call: [],
+				loading: true
+			},
+			computed: {
+				origin(){
+					return window.location.href.replace('/explorer', '');
+				},
+				version(){
+					if(this.info){
+						return 'v' + this.info.version;
+					}
+					return 'unknown';
+				},
+				instances(){
+					if(this.info){
+						return _.map(this.info.results, function(item){
+							var option = {label: 'Default Instance'};
+							if(item.length <= 0){
+								option.value = item;
+							}else{
+								option.label = option.value = item;
+							}
+							return option;
+						});
+					}
+				},
+				blocks(){
+					if(this.call){
+						return this.call.results;
+					}
+				}
+			},
+			methods: {
+				getData(){
+					axios.get(this.origin + '/export?instance=' + this.instance + '&page=' + this.page).then(
+						response => {
+							if(response.data){
+								this.call = response.data;
+							}
+						}
+					).finally(() => {this.loading = false});
+				}
+			},
+			mounted(){
+				axios.get(this.origin + '/instances').then(
+					response => {
+						if(response.data){
+							this.info = response.data;
+						}
+					}
+				).finally(() => { this.getData() });
+			}
+		});
+	</script>
+</body>
+</html>

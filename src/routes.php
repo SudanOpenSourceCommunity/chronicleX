@@ -62,6 +62,22 @@ $app->group('/chronicle', function () {
     $self->get('/replica', 'replica.index');
     $self->get('/', Index::class);
     $self->get('', Index::class);
+    
+    $self->get('/explorer', function (RequestInterface $request, ResponseInterface $response, array $args = []): ResponseInterface {
+        /** @var \Slim\App|\Slim\Container $self */
+        $self = $this;
+        // Render index view
+        if ($self instanceof \Slim\Container) {
+            /** @var \Slim\Container $c */
+            $c = $self;
+        } else {
+            /** @var \Slim\Container $c */
+            $c = $self->getContainer();
+        }
+        /** @var \Slim\Views\PhpRenderer $renderer */
+        $renderer = $c->get('renderer');
+        return $renderer->render($response, 'explorer.phtml', $args);
+    });
 });
 
 $app->get('/', function (RequestInterface $request, ResponseInterface $response, array $args = []): ResponseInterface {
