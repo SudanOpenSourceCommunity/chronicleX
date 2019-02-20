@@ -3,13 +3,13 @@
 <head>
 	<title>ChroncileX Explorer</title>
 	<!-- HTTP Client Library -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha384-U/+EF1mNzvy5eahP9DeB32duTkAmXrePwnRWtuSh1C/bHHhyR1KZCr/aGZBkctpY" crossorigin="anonymous"></script>
 	<!-- VueJS -->
 	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js" integrity="sha384-bNxnjzgkQ1TIrVCdltvL1vdzkGeB40CNLb18ktPIbADQdaXdor3u5iF4Q5udkrXW" crossorigin="anonymous"></script>
 	<!-- Vue Pagination -->
 	<script src="https://unpkg.com/vuejs-paginate@2.1.0/dist/index.js" integrity="sha384-ZM/0jxdMKJriGW9zqYn4JH2/RJe77MGx7T119qRRO+fwQHDRdf93DP4oxwpJdBqb" crossorigin="anonymous"></script>
 	<!-- Underscore -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" integrity="sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" integrity="sha384-5DWzr9S4agqS3WKvPrhFKJagpYyHOBsf3/DxuDKORyqCv2sYer9c/ExdhPOL8CGh" crossorigin="anonymous"></script>
 	<!-- jQuery -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
 	<!-- Bootstrap -->
@@ -38,6 +38,9 @@
 			height: 1em;
 			vertical-align: text-bottom;
 		}
+		[v-cloak] {
+			display: none;
+		}
 	</style>
 </head>
 <body>
@@ -47,6 +50,7 @@
 			ChronicleX&nbsp; Explorer
 		</h1>
 		<div id="app">
+
 			<small class="text-center">Client v0.0.1 - Server {{ version }}</small>
 			<div class="row">
 				<div class="col-md-4">
@@ -55,86 +59,106 @@
 					</select>
 				</div>
 				<div class="col-md-8">
-					<input class="form-control" type="text" value="" placeholder="Search by hash or summary hash..">
+					<input class="form-control" type="text" :value="hash" placeholder="Search by block hash or summary hash..">
 				</div>
 			</div>
 			<hr/>
 
-			<div class="text-center" v-show="loading">
-				<img src="./../loading.gif" />
+			<span v-cloak>
+				
+				<div class="text-center" v-show="loading">
+					<img src="./../loading.gif" />
+				</div>
+
+				<span v-if="errors">
+					{{ errors }}
+				</span>
+				<span v-else-if="pageCount == 0">
+					No Records
+				</span>
+				<span v-else>
+					
+					<table v-show="!loading" class="table table-bordered">
+						<tr class="text-center">
+							<th>ID</th>
+							<th>Blocks</th>
+							<th>Created</th>
+						</tr>
+						<tr v-for="(block, index) in blocks">
+							<td class="text-center"><h3>{{ index + ((page - 1) * perPage) + 1 }}</h3></td>
+							<td>
+								<span v-if="!block.prev" class="badge badge-primary">
+									<span class="fas fa-book"></span>
+									Genesis Block
+									<span class="fas fa-book"></span>
+								</span>
+								<span v-else class="badge badge-info">
+									<small>
+										<span class="fab fa-slack-hash"></span>
+										<b>Previous Block</b>: {{ block.prev }}
+									</small>
+								</span>
+								<details class="alert-secondary">
+									<summary>Contents</summary>
+									<p class="text-center">
+										<div class="form-control">{{ block.contents }}</div>
+									</p>
+									<span class="badge badge-dark">
+										<small>
+											<span class="fas fa-file-contract"></span>
+											<b>Signature</b>: {{ block.signature }}
+										</small>
+									</span>
+									<br/>
+									<span class="badge badge-dark">
+										<small>
+											<span class="fas fa-key"></span>
+											<b>Public Key</b>: {{ block.publickey }}
+										</small>
+									</span>
+									<span class="badge badge-dark">
+										<small>
+											<span class="fas fa-tint"></span>
+											<b>Summary</b>: {{ block.summary }}
+										</small>
+									</span>
+								</details>
+								<span class="badge badge-warning">
+									<small>
+										<span class="fab fa-slack-hash"></span>
+										<b>Block Hash</b>: {{ block.hash }}
+									</small>
+								</span>
+							</td>
+							<td class="text-center">
+								<span class="badge badge-secondary">
+									<small>
+										<span class="fas fa-calendar-alt"></span>
+										<b>{{ block.created }}
+									</small>
+								</span>
+							</td>
+						</tr>
+					</table>
+					
+					<div v-show="!loading">
+						<paginate
+							:page-count="pageCount"
+							:container-class="pagination"
+							:page-class="'page-item'"
+							:page-link-class="'page-link'"
+							:next-link-class="'page-link'"
+							:prev-link-class="'page-link'"
+							:disabled-class="'page-item disabled'"
+							:prev-text="prev"
+							:next-text="next"
+							:click-handler="paginationCallback">
+						</paginate>
+					</div>
+
+				</span>
+
 			</div>
-
-			<table v-show="!loading" class="table table-bordered">
-				<tr class="text-center">
-					<th>ID</th>
-					<th>Blocks</th>
-					<th>Created</th>
-				</tr>
-				<tr v-for="(block, index) in blocks">
-					<td class="text-center"><h3>{{ index + 1 }}</h3></td>
-					<td>
-						<span v-if="!block.prev" class="badge badge-primary">
-							<span class="fas fa-book"></span>
-							Genesis Block
-							<span class="fas fa-book"></span>
-						</span>
-						<span v-else class="badge badge-info">
-							<small>
-								<span class="fab fa-slack-hash"></span>
-								<b>Previous Block</b>: {{ block.prev }}
-							</small>
-						</span>
-						<details class="alert-secondary">
-							<summary>Contents</summary>
-							<p class="text-center">
-								<div class="form-control">{{ block.contents }}</div>
-							</p>
-							<span class="badge badge-dark">
-								<small>
-									<span class="fas fa-file-contract"></span>
-									<b>Signature</b>: {{ block.signature }}
-								</small>
-							</span>
-							<br/>
-							<span class="badge badge-dark">
-								<small>
-									<span class="fas fa-key"></span>
-									<b>Public Key</b>: {{ block.publickey }}
-								</small>
-							</span>
-							<span class="badge badge-dark">
-								<small>
-									<span class="fas fa-tint"></span>
-									<b>Summary</b>: {{ block.summary }}
-								</small>
-							</span>
-						</details>
-						<span class="badge badge-warning">
-							<small>
-								<span class="fab fa-slack-hash"></span>
-								<b>Block Hash</b>: {{ block.hash }}
-							</small>
-						</span>
-					</td>
-					<td class="text-center">
-						<span class="badge badge-secondary">
-							<small>
-								<span class="fas fa-calendar-alt"></span>
-								<b>{{ block.created }}
-							</small>
-						</span>
-					</td>
-				</tr>
-			</table>
-
-			<paginate
-				v-show="!loading"
-				:page-count="10"
-				:container-class="pagination"
-				:prev-text="prev"
-				:next-text="next"
-				:click-handler="clickCallback">
-			</paginate>
 
 		</div>
 	</div>
@@ -145,8 +169,11 @@
 			data: {
 				instance: '',
 				page: 1,
+				perPage: 5,
 				info: [],
 				call: [],
+				hash: '',
+				errors: '',
 				prev: 'Previous',
 				next: 'Next',
 				pagination: 'pagination',
@@ -163,9 +190,9 @@
 					return 'unknown';
 				},
 				pageCount(){
-					if(this.info){
-						if(this.info.meta){
-							return this.info.meta.total_pages;
+					if(this.call){
+						if(this.call.meta){
+							return this.call.meta.total_pages;
 						}
 					}
 					return 0;
@@ -197,10 +224,15 @@
 								this.call = response.data;
 							}
 						}
-					).finally(() => {this.loading = false});
+					)
+					.catch((error) => this.errors = error)
+					.finally(() => this.loading = false);
 				},
-				clickCallback(){
-
+				paginationCallback(pageNum){
+					console.log(pageNum);
+					this.loading = true;
+					this.page = pageNum;
+					this.getData();
 				}
 			},
 			mounted(){
@@ -210,7 +242,9 @@
 							this.info = response.data;
 						}
 					}
-				).finally(() => { this.getData() });
+				)
+				.catch((error) => this.errors = error)
+				.finally(() => { this.getData() });
 			}
 		});
 	</script>
