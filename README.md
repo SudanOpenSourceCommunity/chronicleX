@@ -27,7 +27,7 @@ as part of our continued efforts to make the Internet more secure.
 
 ## Fork overview
 
-This fork is made to speed up Chronicle development with tons of features while considering using "[Semantic Versioning](https://semver.org/spec/v2.0.0.html)". So, this fork will maintain the compatibility with [legacy](https://github.com/paragonie/chronicle) Chronicle as much as the development process go. ChronicleX is just the flag and the name of the brance. But, the project will use `Chronicle` as usaual in the [legacy](https://github.com/paragonie/chronicle).
+This fork is made to speed up Chronicle development with tons of features while considere using "[Semantic Versioning](https://semver.org/spec/v2.0.0.html)". So, this fork will maintain the compatibility with [legacy](https://github.com/paragonie/chronicle) Chronicle as much as the development process go. ChronicleX is just the flag and the name of the brance. But, the project will use `Chronicle` as usaual in the [legacy](https://github.com/paragonie/chronicle).
 
 These are the following features that will be exists in the ChronicleX:
 
