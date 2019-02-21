@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>ChroncileX Explorer</title>
+	<title>ChronicleX Explorer</title>
 	<!-- HTTP Client Library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha384-U/+EF1mNzvy5eahP9DeB32duTkAmXrePwnRWtuSh1C/bHHhyR1KZCr/aGZBkctpY" crossorigin="anonymous"></script>
 	<!-- VueJS -->
@@ -32,7 +32,7 @@
 			font-weight: 200;
 			line-height: 1;
 			margin-top: 40px;
-			margin-bottom: 0;
+			margin-bottom: 15px;
 		}
 		h1 img {
 			height: 1em;
@@ -45,40 +45,61 @@
 </head>
 <body>
 	<div class="container">
+		
 		<h1 class="text-center">
 			<img src="./../chronicle-logo.svg" />
 			ChronicleX&nbsp; Explorer
 		</h1>
+
 		<div id="app">
 
-			<small class="text-center">Client v0.0.1 - Server {{ version }}</small>
 			<div class="row">
-				<div class="col-md-4">
+				<div v-cloak class="col-md-2">
+					<label><small>Instance</small></label>
 					<select v-model="instance" class="form-control custom-select">
 						<option v-for="option in instances" :value="option.value">{{ option.label }}</option>
 					</select>
 				</div>
-				<div class="col-md-8">
-					<input class="form-control" type="text" :value="hash" placeholder="Search by block hash or summary hash..">
+				<div class="col-md-5">
+					<label><small>Host</small></label>
+					<input class="form-control" type="text" v-on:keyup.enter="refresh" v-model="origin">
+				</div>
+				<div class="col-md-5">
+					<label><small>Search</small></label>
+					<div class="input-group">
+						<input class="form-control" type="text" :value="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
+						<div class="input-group-append">
+							<button class="btn btn-outline-secondary" @click="refresh" type="button" id="button-addon2">
+								<span class="fas fa-sync"></span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
+
 			<hr/>
 
 			<span v-cloak>
-				
-				<div class="text-center" v-show="loading">
+
+				<div class="text-center" v-if="loading">
 					<img src="./../loading.gif" />
 				</div>
-
-				<span v-if="errors">
-					{{ errors }}
+				<span v-else-if="errors">
+					<div class="alert alert-danger">
+						{{ errors }}<br/>
+						API Service @ {{ lastURL }}
+					</div>
 				</span>
 				<span v-else-if="pageCount == 0">
-					No Records
+					<div class="alert alert-warning">
+						<span class="fas fa-exclamation-triangle"></span>
+						&nbsp;
+						No Records
+					</div>
 				</span>
 				<span v-else>
 					
-					<table v-show="!loading" class="table table-bordered">
+					<table class="table table-bordered">
 						<tr class="text-center">
 							<th>ID</th>
 							<th>Blocks</th>
@@ -141,25 +162,34 @@
 						</tr>
 					</table>
 					
-					<div v-show="!loading">
-						<paginate
-							:page-count="pageCount"
-							:container-class="pagination"
-							:page-class="'page-item'"
-							:page-link-class="'page-link'"
-							:next-link-class="'page-link'"
-							:prev-link-class="'page-link'"
-							:disabled-class="'page-item disabled'"
-							:prev-text="prev"
-							:next-text="next"
-							:click-handler="paginationCallback">
-						</paginate>
-					</div>
+					<paginate
+						:page-count="pageCount"
+						:container-class="'pagination'"
+						:page-class="'page-item'"
+						:page-link-class="'page-link'"
+						:next-link-class="'page-link'"
+						:prev-link-class="'page-link'"
+						:active-class="'active'"
+						:disabled-class="'page-item disabled'"
+						:prev-text="prev"
+						:next-text="next"
+						:click-handler="paginationCallback">
+					</paginate>
 
 				</span>
+				
+			</span>
 
+			<hr/>
+			<div class="row">
+				<div class="col-md-3">
+					<small class="text-center">Client v0.0.1<span v-cloak> - Server {{ version }}</span></small>
+				</div>
+				<div class="col-md-9 text-right">
+					<small>{{ lastURL }}</small>
+				</div>
 			</div>
-
+			
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -167,6 +197,8 @@
 		var app = new Vue({
 			el: '#app',
 			data: {
+				origin: '',
+				lastURL: '',
 				instance: '',
 				page: 1,
 				perPage: 5,
@@ -176,13 +208,9 @@
 				errors: '',
 				prev: 'Previous',
 				next: 'Next',
-				pagination: 'pagination',
 				loading: true
 			},
 			computed: {
-				origin(){
-					return window.location.href.replace('/explorer', '');
-				},
 				version(){
 					if(this.info){
 						return 'v' + this.info.version;
@@ -218,7 +246,9 @@
 			},
 			methods: {
 				getData(){
-					axios.get(this.origin + '/export?instance=' + this.instance + '&page=' + this.page).then(
+					this.loading = true;
+					this.lastURL = this.origin + '/export?instance=' + this.instance + '&page=' + this.page;
+					axios.get(this.lastURL).then(
 						response => {
 							if(response.data){
 								this.call = response.data;
@@ -230,21 +260,28 @@
 				},
 				paginationCallback(pageNum){
 					console.log(pageNum);
-					this.loading = true;
 					this.page = pageNum;
+					this.getData();
+				},
+				getInstances(){
+					this.lastURL = this.origin + '/instances';
+					axios.get(this.lastURL).then(
+						response => {
+							if(response.data){
+								this.info = response.data;
+							}
+						}
+					)
+					.catch((error) => this.errors = error)
+					.finally(() => { this.getData() });
+				},
+				refresh(){
 					this.getData();
 				}
 			},
 			mounted(){
-				axios.get(this.origin + '/instances').then(
-					response => {
-						if(response.data){
-							this.info = response.data;
-						}
-					}
-				)
-				.catch((error) => this.errors = error)
-				.finally(() => { this.getData() });
+				this.origin = window.location.href.replace('/explorer', '');
+				this.getInstances();
 			}
 		});
 	</script>
