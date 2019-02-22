@@ -63,6 +63,9 @@ class Index implements HandlerInterface
     {
         return [
             [
+                'uri' => '/chronicle/explorer',
+                'description' => 'Web Application endpoint built using VueJS to explore Chronicle'
+            ], [
                 'uri' => '/chronicle/instances',
                 'description' => 'List all Chronicle instances'
             ], [

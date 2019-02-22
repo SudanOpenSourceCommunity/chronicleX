@@ -41,6 +41,8 @@ These are the following features that will be exists in the ChronicleX:
 - [x] `chronicle/replica` Pagination.
 - [x] Make tests to covers (SQLite, MySQL & PostgreSQL) Databases at once.
 - [x] Create `chronicle/instances` API to list all instances.
+- [x] Extend `chronicle/lookup` API to search at currhash, summaryhash, publickey, signature and data.
+- [x] Create Web Application at `chronicle/explorer` endpoint to explore chronicle instances.
 - [ ] Revise cross-sign functionality.
 - [ ] Revise tests to cover all functionalities.
 - [ ] Create `chronicle/instances` API with option to hide some instances.
