@@ -20,11 +20,14 @@ CREATE TABLE chronicle_chain (
   publickey TEXT NOT NULL,
   signature TEXT NOT NULL,
   created TIMESTAMP,
+  UNIQUE(signature),
   UNIQUE(currhash),
   UNIQUE(prevhash),
   FOREIGN KEY (prevhash) REFERENCES chronicle_chain(currhash)
 );
 
+CREATE INDEX chronicle_chain_publickey_idx ON chronicle_chain(publickey);
+CREATE INDEX chronicle_chain_signature_idx ON chronicle_chain(signature);
 CREATE INDEX chronicle_chain_prevhash_idx ON chronicle_chain(prevhash);
 CREATE INDEX chronicle_chain_currhash_idx ON chronicle_chain(currhash);
 CREATE INDEX chronicle_chain_summaryhash_idx ON chronicle_chain(summaryhash);

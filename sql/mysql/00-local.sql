@@ -17,13 +17,15 @@ CREATE TABLE chronicle_chain (
   `currhash` VARCHAR(128) NOT NULL,
   `hashstate` TEXT NOT NULL,
   `summaryhash` VARCHAR(128) NOT NULL,
-  `publickey` TEXT NOT NULL,
-  `signature` TEXT NOT NULL,
+  `publickey` VARCHAR(128) NOT NULL,
+  `signature` VARCHAR(255) NOT NULL,
   `created` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX(`publickey`),
   INDEX(`prevhash`),
   INDEX(`currhash`),
   INDEX(`summaryhash`),
   FOREIGN KEY (`prevhash`) REFERENCES chronicle_chain(`currhash`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  UNIQUE(`signature`),
   UNIQUE(`prevhash`),
   UNIQUE(`currhash`)
 );

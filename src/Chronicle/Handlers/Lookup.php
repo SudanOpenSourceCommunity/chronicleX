@@ -131,30 +131,54 @@ class Lookup implements HandlerInterface
      * Get information about a particular entry, given its hash.
      *
      * @param array $args
+     * @param int $page
+     * @param int $perPage
      * @return ResponseInterface
      *
      * @throws \Exception
      * @throws FilesystemException
      * @throws HashNotFound
      */
-    public function getByHash(array $args = []): ResponseInterface
+    public function getByHash(array $args = [], int $page = 1, int $perPage = 5): ResponseInterface
     {
+        /** @var string $queryCondition */
+        $queryCondition = '
+            currhash = ?
+             OR summaryhash = ?
+             OR publickey = ?
+             OR signature = ?
+        ';
+
+        /** 
+        * @var string $paginationCondition
+        * @var array<string, int> $meta
+        */
+        list($paginationCondition, $meta) = Chronicle::getPagination(
+            'chain', $page, $perPage, $queryCondition, [
+                $args['hash'],
+                $args['hash'],
+                $args['hash'],
+                $args['hash'],
+            ]
+        );
+
         /** @var array<int, array<string, string>> $record */
         $record = Chronicle::getDatabase()->run(
             "SELECT
                  data AS contents,
-                 prevhash,
-                 currhash,
-                 summaryhash,
+                 prevhash as prev,
+                 currhash as hash,
+                 summaryhash as summary,
                  created,
                  publickey,
                  signature
              FROM
-                 " . Chronicle::getTableName('chain') . "
-             WHERE
-                 currhash = ?
-                 OR summaryhash = ?
+                    " . Chronicle::getTableName('chain') . "
+             WHERE  " . $queryCondition . "
+                    " . $paginationCondition . "
             ",
+            $args['hash'],
+            $args['hash'],
             $args['hash'],
             $args['hash']
         );
@@ -167,7 +191,8 @@ class Lookup implements HandlerInterface
                 'version' => Chronicle::VERSION,
                 'datetime' => (new \DateTime())->format(\DateTime::ATOM),
                 'status' => 'OK',
-                'results' => $record
+                'results' => $record,
+                'meta' => $meta,
             ],
             Chronicle::getSigningKey()
         );

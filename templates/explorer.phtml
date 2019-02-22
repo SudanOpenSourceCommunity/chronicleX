@@ -6,8 +6,13 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha384-U/+EF1mNzvy5eahP9DeB32duTkAmXrePwnRWtuSh1C/bHHhyR1KZCr/aGZBkctpY" crossorigin="anonymous"></script>
 	<!-- VueJS -->
 	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js" integrity="sha384-bNxnjzgkQ1TIrVCdltvL1vdzkGeB40CNLb18ktPIbADQdaXdor3u5iF4Q5udkrXW" crossorigin="anonymous"></script>
+	<!-- Vue Clipboard2 -->
+	<script src="https://cdn.jsdelivr.net/npm/vue-clipboard2@0.3.0/dist/vue-clipboard.min.js" integrity="sha384-F+VCGbBrDfBnBio84wM4okh7aIT1UPlblfx0gy/ZBvlMadLpK+2/Dg5m2pfmbBpn" crossorigin="anonymous"></script>
 	<!-- Vue Pagination -->
 	<script src="https://unpkg.com/vuejs-paginate@2.1.0/dist/index.js" integrity="sha384-ZM/0jxdMKJriGW9zqYn4JH2/RJe77MGx7T119qRRO+fwQHDRdf93DP4oxwpJdBqb" crossorigin="anonymous"></script>
+	<!-- Vue Tooltip -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-directive-tooltip@1.5.0/css/index.min.css" integrity="sha384-ZfVV5ssVc0Kh4IJACuoOoQTP0DrHf44R7vsqCUGxrQCKclviu/pPjOiriOj14w2b" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/vue-directive-tooltip@1.5.0/dist/vueDirectiveTooltip.min.js" integrity="sha384-EhElDCbYIilyHhXGy0Zbr/VUuydbg8tI2snYT3CzQbCI7ML8aIsN9aheHN+Cs1d8" crossorigin="anonymous"></script>
 	<!-- Underscore -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" integrity="sha384-5DWzr9S4agqS3WKvPrhFKJagpYyHOBsf3/DxuDKORyqCv2sYer9c/ExdhPOL8CGh" crossorigin="anonymous"></script>
 	<!-- jQuery -->
@@ -41,6 +46,12 @@
 		[v-cloak] {
 			display: none;
 		}
+		.clickable{
+			cursor: pointer;
+		}
+		.clipboard-tooltip{
+			font-size: 0.7em;
+		}
 	</style>
 </head>
 <body>
@@ -63,12 +74,23 @@
 				<div class="col-md-10">
 					<label><small>Search</small></label>
 					<div class="input-group">
-						<input class="form-control" type="text" v-on:keyup.enter="search" v-model="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
+						<input class="form-control" type="text" v-on:keyup.enter="search" v-model="hash" ref="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
 						<div class="input-group-append">
+							<button v-cloak class="btn btn-outline-secondary" v-show="hash" @click="hash = ''" type="button" id="button-addon2">
+								<span class="fas fa-trash-alt"></span>
+							</button>
+							<button v-cloak class="btn btn-outline-secondary" v-show="hash" @click="copyToClipboard" type="button"
+								v-tooltip.top="clipboardStatus"
+								id="button-addon2">
+								<span class="far fa-copy"></span>
+							</button>
 							<button class="btn btn-outline-secondary" @click="refresh" type="button" id="button-addon2">
 								<span class="fas fa-sync"></span>
 							</button>
 						</div>
+					</div>
+					<div class="invalid-feedback">
+						Please provide a valid state.
 					</div>
 				</div>
 			</div>
@@ -86,7 +108,7 @@
 						API Service @ {{ lastURL }}
 					</div>
 				</span>
-				<span v-else-if="pageCount == 0">
+				<span v-else-if="pageCount == 0 && !call">
 					<div class="alert alert-warning">
 						<span class="fas fa-exclamation-triangle"></span>
 						&nbsp;
@@ -98,7 +120,7 @@
 					<table class="table table-bordered">
 						<tr class="text-center">
 							<th>ID</th>
-							<th>Blocks</th>
+							<th>Blocks<small>({{ totalRows }})</small></th>
 							<th>Created</th>
 						</tr>
 						<tr v-for="(block, index) in blocks">
@@ -112,7 +134,10 @@
 								<span v-else class="badge badge-info">
 									<small>
 										<span class="fab fa-slack-hash"></span>
-										<b>Previous Block</b>: {{ block.prev }}
+										<b>Previous Block</b>:
+										<span class="clickable" @click="selectComponent($event.target)">
+											{{ block.prev }}
+										</span>
 									</small>
 								</span>
 								<details class="alert-secondary">
@@ -123,27 +148,39 @@
 									<span class="badge badge-dark">
 										<small>
 											<span class="fas fa-file-contract"></span>
-											<b>Signature</b>: {{ block.signature }}
+											<b>Signature</b>:
+											<span class="clickable" @click="selectComponent($event.target)">
+												{{ block.signature }}
+											</spa>
 										</small>
 									</span>
 									<br/>
 									<span class="badge badge-dark">
 										<small>
 											<span class="fas fa-key"></span>
-											<b>Public Key</b>: {{ block.publickey }}
+											<b>Public Key</b>:
+											<span class="clickable" @click="selectComponent($event.target)">
+												{{ block.publickey }}
+											</span>
 										</small>
 									</span>
 									<span class="badge badge-dark">
 										<small>
 											<span class="fas fa-tint"></span>
-											<b>Summary</b>: {{ block.summary }}
+											<b>Summary</b>:
+											<span class="clickable" @click="selectComponent($event.target)">
+												{{ block.summary }}
+											</span>
 										</small>
 									</span>
 								</details>
 								<span class="badge badge-warning">
 									<small>
 										<span class="fab fa-slack-hash"></span>
-										<b>Block Hash</b>: {{ block.hash }}
+										<b>Block Hash</b>:
+										<span class="clickable" @click="selectComponent($event.target)">
+											{{ block.hash }}
+										</span>
 									</small>
 								</span>
 							</td>
@@ -180,17 +217,21 @@
 			<hr/>
 
 			<div class="row">
-				<div class="col-md-3 text-left">
+				<div class="col-md-12 text-center">
 					<small>Client v0.0.1<span v-cloak> - Server {{ version }}</span></small>
-				</div>
-				<div class="col-md-9 text-right">
-					<small>{{ lastURL }}</small>
+					<br/>
+					<small v-cloak>{{ lastURL }}</small>
 				</div>
 			</div>
 			
 		</div>
 	</div>
 	<script type="text/javascript">
+		Vue.component(VueClipboard);
+		Vue.use(vueDirectiveTooltip, {
+			delay: 200,
+			class: 'clipboard-tooltip'
+		});
 		Vue.component('paginate', VuejsPaginate);
 		var app = new Vue({
 			el: '#app',
@@ -204,6 +245,7 @@
 				call: [],
 				hash: '',
 				errors: '',
+				clipboardStatus: 'Copy to clipboard',
 				loading: true
 			},
 			computed: {
@@ -217,6 +259,14 @@
 					if(this.call){
 						if(this.call.meta){
 							return this.call.meta.total_pages;
+						}
+					}
+					return 0;
+				},
+				totalRows(){
+					if(this.call){
+						if(this.call.meta){
+							return this.call.meta.total_rows;
 						}
 					}
 					return 0;
@@ -271,8 +321,24 @@
 					.catch(error => this.errors = error)
 					.finally(() => { this.getData() });
 				},
+				selectComponent: function(component){
+					this.hash = component.innerHTML.trim();
+					console.log(this.hash);
+					this.$refs.hash.focus();
+				},
 				search(){
-					console.warn('Not Implemented');
+					this.loading = true;
+					this.call = [];
+					this.lastURL = this.origin + '/lookup/' + this.hash + '?instance=' + this.instance + '&page=' + this.page;
+					axios.get(this.lastURL).then(
+						response => {
+							if(response.data){
+								this.call = response.data;
+							}
+						}
+					)
+					.catch(error => this.errors = error)
+					.finally(() => this.loading = false);
 				},
 				refresh(){
 					if(this.hash.length > 0){
@@ -280,6 +346,14 @@
 					}else{
 						this.getData();
 					}
+				},
+				copyToClipboard(){
+					this.$copyText(this.hash).then(function (e) {
+						this.clipboardStatus = 'Copied';
+					}, function (e) {
+						this.clipboardStatus = 'Oops, unable to copy!';
+					});
+					setTimeout(() => this.clipboardStatus = 'Copy to clipboard', 1000);
 				}
 			},
 			mounted(){
