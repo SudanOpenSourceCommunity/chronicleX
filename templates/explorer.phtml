@@ -60,11 +60,7 @@
 						<option v-for="option in instances" :value="option.value">{{ option.label }}</option>
 					</select>
 				</div>
-				<div class="col-md-5">
-					<label><small>Host</small></label>
-					<input class="form-control" type="text" v-on:keyup.enter="refresh" v-model="origin">
-				</div>
-				<div class="col-md-5">
+				<div class="col-md-10">
 					<label><small>Search</small></label>
 					<div class="input-group">
 						<input class="form-control" type="text" :value="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
@@ -169,10 +165,9 @@
 						:page-link-class="'page-link'"
 						:next-link-class="'page-link'"
 						:prev-link-class="'page-link'"
-						:active-class="'active'"
 						:disabled-class="'page-item disabled'"
-						:prev-text="prev"
-						:next-text="next"
+						:prev-text="'Previous'"
+						:next-text="'Next'"
 						:click-handler="paginationCallback">
 					</paginate>
 
@@ -182,8 +177,8 @@
 
 			<hr/>
 			<div class="row">
-				<div class="col-md-3">
-					<small class="text-center">Client v0.0.1<span v-cloak> - Server {{ version }}</span></small>
+				<div class="col-md-3 text-left">
+					<small>Client v0.0.1<span v-cloak> - Server {{ version }}</span></small>
 				</div>
 				<div class="col-md-9 text-right">
 					<small>{{ lastURL }}</small>
@@ -206,8 +201,6 @@
 				call: [],
 				hash: '',
 				errors: '',
-				prev: 'Previous',
-				next: 'Next',
 				loading: true
 			},
 			computed: {
@@ -255,7 +248,7 @@
 							}
 						}
 					)
-					.catch((error) => this.errors = error)
+					.catch(error => this.errors = error)
 					.finally(() => this.loading = false);
 				},
 				paginationCallback(pageNum){
@@ -272,7 +265,7 @@
 							}
 						}
 					)
-					.catch((error) => this.errors = error)
+					.catch(error => this.errors = error)
 					.finally(() => { this.getData() });
 				},
 				refresh(){
