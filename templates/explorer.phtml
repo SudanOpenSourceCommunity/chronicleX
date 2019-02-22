@@ -89,9 +89,6 @@
 							</button>
 						</div>
 					</div>
-					<div class="invalid-feedback">
-						Please provide a valid state.
-					</div>
 				</div>
 			</div>
 
@@ -117,7 +114,7 @@
 				</span>
 				<span v-else>
 					
-					<table class="table table-bordered">
+					<table v-show="blocks" class="table table-bordered">
 						<tr class="text-center">
 							<th>ID</th>
 							<th>Blocks<small>({{ totalRows }})</small></th>
