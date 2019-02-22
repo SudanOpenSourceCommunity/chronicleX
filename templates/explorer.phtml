@@ -63,7 +63,7 @@
 				<div class="col-md-10">
 					<label><small>Search</small></label>
 					<div class="input-group">
-						<input class="form-control" type="text" :value="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
+						<input class="form-control" type="text" v-on:keyup.enter="search" v-model="hash" placeholder="Search by block hash or summary hash.." aria-label="Search by block hash or summary hash.." aria-describedby="button-addon2">
 						<div class="input-group-append">
 							<button class="btn btn-outline-secondary" @click="refresh" type="button" id="button-addon2">
 								<span class="fas fa-sync"></span>
@@ -157,25 +157,28 @@
 							</td>
 						</tr>
 					</table>
-					
-					<paginate
-						:page-count="pageCount"
-						:container-class="'pagination'"
-						:page-class="'page-item'"
-						:page-link-class="'page-link'"
-						:next-link-class="'page-link'"
-						:prev-link-class="'page-link'"
-						:disabled-class="'page-item disabled'"
-						:prev-text="'Previous'"
-						:next-text="'Next'"
-						:click-handler="paginationCallback">
-					</paginate>
 
 				</span>
+				
+				<paginate
+					v-cloak
+					v-show="pageCount > 1"
+					:page-count="pageCount"
+					:container-class="'pagination'"
+					:page-class="'page-item'"
+					:page-link-class="'page-link'"
+					:next-link-class="'page-link'"
+					:prev-link-class="'page-link'"
+					:disabled-class="'page-item disabled'"
+					:prev-text="'Previous'"
+					:next-text="'Next'"
+					:click-handler="paginationCallback">
+				</paginate>
 				
 			</span>
 
 			<hr/>
+
 			<div class="row">
 				<div class="col-md-3 text-left">
 					<small>Client v0.0.1<span v-cloak> - Server {{ version }}</span></small>
@@ -268,8 +271,15 @@
 					.catch(error => this.errors = error)
 					.finally(() => { this.getData() });
 				},
+				search(){
+					console.warn('Not Implemented');
+				},
 				refresh(){
-					this.getData();
+					if(this.hash.length > 0){
+						this.search();
+					}else{
+						this.getData();
+					}
 				}
 			},
 			mounted(){
