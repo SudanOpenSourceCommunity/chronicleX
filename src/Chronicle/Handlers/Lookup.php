@@ -143,10 +143,11 @@ class Lookup implements HandlerInterface
     {
         /** @var string $queryCondition */
         $queryCondition = '
-            currhash = ?
+                currhash    = ?
              OR summaryhash = ?
-             OR publickey = ?
-             OR signature = ?
+             OR publickey   = ?
+             OR signature   = ?
+             OR data LIKE     ?
         ';
 
         /** 
@@ -159,6 +160,7 @@ class Lookup implements HandlerInterface
                 $args['hash'],
                 $args['hash'],
                 $args['hash'],
+                "%{$args['hash']}%",
             ]
         );
 
@@ -180,7 +182,8 @@ class Lookup implements HandlerInterface
             $args['hash'],
             $args['hash'],
             $args['hash'],
-            $args['hash']
+            $args['hash'],
+            "%{$args['hash']}%"
         );
         if (!$record) {
             throw new HashNotFound('No record found matching this hash.');

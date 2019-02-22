@@ -102,10 +102,11 @@
 				<span v-else-if="errors">
 					<div class="alert alert-danger">
 						{{ errors }}<br/>
-						API Service @ {{ lastURL }}
+						API Service @ {{ lastURL }}<br/>
+						<b>If the problem persists after many tries, refresh the page or press F5...</b>
 					</div>
 				</span>
-				<span v-else-if="pageCount == 0 && !call">
+				<span v-else-if="(pageCount == 0 && !call) || blocks.length == 0">
 					<div class="alert alert-warning">
 						<span class="fas fa-exclamation-triangle"></span>
 						&nbsp;
@@ -114,7 +115,7 @@
 				</span>
 				<span v-else>
 					
-					<table v-show="blocks" class="table table-bordered">
+					<table class="table table-bordered">
 						<tr class="text-center">
 							<th>ID</th>
 							<th>Blocks<small>({{ totalRows }})</small></th>
@@ -290,7 +291,7 @@
 			methods: {
 				getData(){
 					this.loading = true;
-					this.lastURL = this.origin + '/export?instance=' + this.instance + '&page=' + this.page;
+					this.lastURL = this.origin + '/export?instance=' + encodeURIComponent(this.instance) + '&page=' + this.page;
 					axios.get(this.lastURL).then(
 						response => {
 							if(response.data){
@@ -326,7 +327,7 @@
 				search(){
 					this.loading = true;
 					this.call = [];
-					this.lastURL = this.origin + '/lookup/' + this.hash + '?instance=' + this.instance + '&page=' + this.page;
+					this.lastURL = this.origin + '/lookup/' + encodeURIComponent(this.hash) + '?instance=' + encodeURIComponent(this.instance) + '&page=' + this.page;
 					axios.get(this.lastURL).then(
 						response => {
 							if(response.data){
