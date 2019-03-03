@@ -5,6 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/sudan-open-source-community/chronicle-x/downloads)](https://packagist.org/packages/sudan-open-source-community/chronicle-x)
 [![Latest Unstable Version](https://poser.pugx.org/sudan-open-source-community/chronicle-x/v/unstable)](https://packagist.org/packages/sudan-open-source-community/chronicle-x)
 [![License](https://poser.pugx.org/sudan-open-source-community/chronicle-x/license)](https://packagist.org/packages/sudan-open-source-community/chronicle-x)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSudanOpenSourceCommunity%2FchronicleX.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FSudanOpenSourceCommunity%2FchronicleX?ref=badge_shield)
 
 **Chronicle** is a self-hostable microservice, built with [Slim Framework](https://www.slimframework.com),
 which enables authorized users to commit arbitrary data to an immutable,
@@ -127,3 +128,7 @@ The rationale for using the previous message's hash was to add a degree of domai
 separation in the event that a BLAKE2b collision attack is ever discovered. The
 keying should reduce the likelihood of any practical attacks, especially if the
 chain is updated rapidly.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSudanOpenSourceCommunity%2FchronicleX.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSudanOpenSourceCommunity%2FchronicleX?ref=badge_large)
